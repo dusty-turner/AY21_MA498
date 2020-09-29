@@ -1,11 +1,8 @@
-####################################################
-# Author: Madison Teague
-# Translation of work done by COL Paul Evangelista
-# Last updated 2 SEP 2020
-####################################################
 import random
-##maybe use object oriented programing?
+import numpy as np
 
+    
+    
     #Working function to randomly assign # of roomates
     #may not be useful b/c can just assign random rooms w/ max of 4 cadets
 ### def roomates(self):
@@ -29,22 +26,27 @@ class cadet:
         self.schedule = schedule #courses written like "ma498" sections written like "h24" (don't use day code use section code)
 
     def companyID(self):
-        return f"Cadet is a member of {self.company} company."
+        return(f"Cadet is a member of {self.company} company.")
 
     def roomID(self):
-        return f"Cadet lives in room {self.room}."
+        return(f"Cadet lives in room {self.room}.")
 
     def teamID(self):
-        return f"Cadet is on {self.self}."
+        return(f"Cadet is on {self.self}.")
 
     def scheduleID(self):
-        return f"Cadet is taking {self.courses}."
+        return(f"Cadet is taking {self.courses}.")
+
+    def cadetArray(self):
+      cadetList = list(self.year, self.company, self.room, self.schedule, self.covidStatus)
+      cadetArr = np.array(cadetList)
+      return(cadetArr)
 
 
 ##function to create Bernoulli random variable
 def bern():
     rv = random.randrange(0,2,1)
-    return rv
+    return(rv)
 
 #function to create new infection, assigns symptomatic condition (0 or 1)
 #function to create new infection, assigns symptomatic condition (0 or 1)
@@ -54,6 +56,7 @@ def newInfection(cadet):
     else:
         cadet.symp = bern()
         cadet.activeInf = 1
+        cadet.infTime = 1
 #need somethig here for positive infections/total infections/infection time
 
 def disinfection(cadet):
@@ -66,20 +69,41 @@ def disinfection(cadet):
 #returns set of close contacts for a cadet
 #defines close cadets as roomates, teammates, and class sections
 def closeContacts(infCadet, corps):
+  #need way to mark teams/sections/companies as infected
     contacts = set()
     for cadet in corps:
         if cadet == infCadet:
             pass
-        elif (cadet.company == infCadet.company):
+        if (cadet.company == infCadet.company):
             if (cadet.room == infCadet.room):
                 contacts.add(cadet)
-        elif (cadet.team == infCadet.team):
+        if (cadet.team == infCadet.team):
             contacts.add(cadet)
-        elif (cadet.year == infCadet.year)
+        if (cadet.year == infCadet.year):
           for course in infCadet.schedule:
               if (course in cadet.schedule and cadet.schedule[course] == infCadet.schedule[course]):
                   contacts.add(cadet)
-    return contacts
+    return(contacts)
+
+def groupInfect(infCadet, corps):
+    team = infCadet.team
+    infCadetArr = cadetArray(infCadet)
+    if(team != "none"):
+      for cdt in corps:
+        cdtArr = cadetArray(cdt)
+        teamRoster = np.where(cdtArr[3] == infCadetArr[3],cdt,)
+
+
+def closeContacts2(infCadet, corps):
+#need cadet to be array and corps to be array
+    for cadet in corps:
+      if(cadet == infCadet):
+          pass
+      cadetArr = cadetArray(cadet)
+      infCadetArr = cadetArray(infCadet)
+      for i in range(5):
+        np.where(cadetArr[i] == infCadetArr[i],cadet,0)
+#need something to return list of close contacts
 
 def infect(contacts):
     for cadet in contacts:
@@ -112,12 +136,13 @@ courseDictZ = {
     "ev203":"j44",
     "py201":"i37"
 }
-covid1 = covidStatus(0,0,0,0) #totlly vulnerable
-covid2 = covidStatus(0,1,0,1) #actively infected, aysymptomatic, one day of infection
-covid3 = covidStatus(1,0,0,0) #immune b/c already had disease
-covid4 = covidStatus(0,4,1,1) #activley infected, sympromatic, 4 days of infection
 
-cadetX = cadet("1","d2", "e4023", "none", courseDict, covid3)
+covid1 = covidStatus(0,0,0,0) #totally vulnerable
+covid2 = covidStatus(0,1,0,1) #actively infected, asymptomatic, one day of infection
+covid3 = covidStatus(1,0,0,0) #immune b/c already had disease
+covid4 = covidStatus(0,4,1,1) #activley infected, symptomatic, 4 days of infection
+
+cadetX = cadet("1","d2", "e4023", "none", courseDictX, covid3)
 cadetY = cadet("1", "d2", "e4031", "softball", courseDictY, covid4)
 cadetZ = cadet("2", "e4", "s3015","softball",courseDictZ, covid1)
 
@@ -127,7 +152,12 @@ type(closeTest)
 print(closeTest)
 
 
-#simulation functions
+#simulation parameters
 
+quarantneCt = 0
+
+
+#simulation functions
 #need how to select a cadet to be tested
 #need random assignment of test result
+#need count for while in quarantine
