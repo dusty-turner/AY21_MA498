@@ -1,0 +1,54 @@
+---
+title: "INLA Examples"
+author: "Reilly McGinnis"
+date: "9/24/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("INLA")
+inla.upgrade(testing=TRUE) #updates INLA to latest version
+```
+
+## p114
+```{r, message=FALSE, warning=FALSE}
+formula <- y~ 1+x1+x2_f(z1,model="...") #default f() is iid which is independent and Gaussian RVs indexed by z1. 
+#Could also do f1, f2, f3 if there are 3 different covariate values
+
+#We run the INLA algorithm using the inla function as follows:
+inla(formula, family="poisson", data) #family is a string that specifies the data's distribution (likelihood)
+```
+
+```{r} 
+### EXAMPLE 1 ###
+# Linear regression for iris dataset
+lml <-lm(Petal.Length~Petal.Width,data=iris)
+
+# Implement using R-INLA
+formula <- Petal.Length ~ 1+Petal.Width
+output <-inla(formula, family="gaussian",data=iris)
+summary(output)
+```
+```{r}
+# Plot the posterior marginlal distribution of B1, petal.width coefficient
+betal_post <-output$marginals.fixed$Petal.Width
+plot(betal_post,xlab=expression(beta[1]),
+     ylab=expression(tilde(p)(paste(beta[1],"|",y))))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
