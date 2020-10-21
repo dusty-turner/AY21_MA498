@@ -1,0 +1,39 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{COVID-19 Testing: Annotated Bibliography}
+\author{CDT Madison Teague}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Thompson, Adaptive Cluster Sampling (1990)}
+
+In Thompson's paper, "Adaptive Cluster Sampling," he discusses real world applications of adaptive sampling techniques and how to use the data collected with this sampling to create unbiased estimators for the number of a certain species in a population. Some of the advantages from "sequential statistical methods," include, "increased power, lower expected sample size or more controllable precision" \cite{thompson1990adaptive}. Adaptive cluster sampling is a design in which an initial sample is taken randomly from a population, and the neighbors of a certain unit which satisfies a specific criterion are added to the sample \cite{thompson1990adaptive}. With adaptive sampling, typical estimators result in bias, so this article uses design unbiased estimators, improved with the Rao-Blackwell method, which are based on how the samples are selected \cite{thompson1990adaptive}. The article explains why Hansen-Hurwitz estimator has been used thus far as an unbiased estimator for adaptive cluster samples and introduces Horvitz-Thompson estimator as an improvement. Thompson then uses the improved estimators in a short example. His final point is on expected sample size and cost. 
+
+In relation to COVID-19, West Point currently uses a form of adaptive cluster sampling when looking at the cadet population. The article mentions two types of "snowball sampling." When used by Kalton and Anderson in their study (1986), a few members of a rare population were asked to identify other members and those members were asked to identify more. When used by Goodman in 1961, the individuals were asked to identify a fixed number of individuals, who were asked the same, and this continued for a fixed number of stages in order to determine "mutual relationships or "social circles" \cite{thompson1990adaptive}. This is useful because it is how West Point attempts to do some tracing for positive cadet COVID-19 tests.
+
+\section{Salehi, Rao-Blackwell versions of the Horvitz-Thompson and Hansen-Hurwitz in adaptive cluster sampling (1999)}
+
+In this article, Salehi leverages the Rao-Blackwell method theorem to improve the Horvitz-Thompson and Hansen-Hurwitz estimators introduced by Thompson in his 1990 publication. The article walks through the derivation of unbiased estimators based off the HT and HH estimators and then demonstrates their use in several examples. \cite{mohammad1999rao}
+
+In relation to COVID-19, this article helps establish a clear understanding of the estimators I could use to help predict the how pervasive the disease is within the corps of cadets. 
+
+
+\section{Salehi, Comparison between Hansen-Hurwitz and Horvitz-Thompson estimators for adaptive cluster sampling (2002)}
+In this article, Salehi compares the properties of HH and HT estimators.  He does so with the help of ordered statistics and focuses heavily on network size in his analysis. Salehi concludes that the computation for both HH and HT can be reduced with the adjustments he makes in his paper. Through the simulations run for this paper, Salehi confirmed that the HT estimator is more efficient than the HH estimator. \cite{salehi2003comparison}
+
+The adjustments made to the HH and HT estimators will be useful in the COVID-19 experiment as they will be the estimators used and analyzed for the perversion of COVID-19 in the corps of the cadets. 
+
+
+
+\clearpage
+\bibliographystyle{plain}
+\bibliography{bib.bib}
+
+
+\end{document}
+
+
