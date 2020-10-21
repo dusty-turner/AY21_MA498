@@ -36,10 +36,10 @@ class cadet:
         return(f"Cadet lives in room {self.room}.")
 
     def teamID(self):
-        return(f"Cadet is on {self.self}.")
+        return(f"Cadet is on {self.team}.")
 
     def scheduleID(self):
-        return(f"Cadet is taking {self.courses}.")
+        return(f"Cadet is taking {self.scheule}.")
 
 class company:
   
