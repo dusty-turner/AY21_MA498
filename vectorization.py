@@ -36,10 +36,10 @@ class cadet:
         return(f"Cadet lives in room {self.room}.")
 
     def teamID(self):
-        return(f"Cadet is on {self.self}.")
+        return(f"Cadet is on {self.team}.")
 
     def scheduleID(self):
-        return(f"Cadet is taking {self.courses}.")
+        return(f"Cadet is taking {self.schedule}.")
 
 class company:
   
@@ -62,13 +62,11 @@ class section:
     self.students = students #list(or array) containing all cadets in section. (name ID)
     
     
-##If I build with extra classes, which are really just lists/arrays, then I do not have to go through whole corps.
-
-##function to create Bernoulli random variable
 def bern():
     rv = random.randrange(0,2,1)
     return(rv)
 
+#function to create new infection, assigns symptomatic condition (0 or 1)
 #function to create new infection, assigns symptomatic condition (0 or 1)
 def newInfection(cadet):
     if(cadet.immune == 1 or cadet.infTime != 0):
@@ -88,24 +86,42 @@ def disinfection(cadet):
 #function to define close contacts
 #returns set of close contacts for a cadet
 #defines close cadets as roomates, teammates, and class sections
-def closeContacts(infCadet):
+def closeContacts(infCadet, corps):
   #need way to mark teams/sections/companies as infected
     contacts = set()
-    for cadet in infCadet.room:
-      if cadet == infCadet:
-        pass
-      else:
-        contacts.add(cadet)
-    for cadet in infCadet.team:
-      if cadet == infCadet:
-        pass
-      else:
-        contacts.add(cadet)
-    for section in infCadet.schedule:
-          for cadet in section:
+    for cadet in corps:
+        if cadet == infCadet:
+            pass
+        if (cadet.company == infCadet.company):
+            if (cadet.room == infCadet.room):
+                contacts.add(cadet)
+        if (cadet.team == infCadet.team):
             contacts.add(cadet)
+        if (cadet.year == infCadet.year):
+          for course in infCadet.schedule:
+              if (course in cadet.schedule and cadet.schedule[course] == infCadet.schedule[course]):
+                  contacts.add(cadet)
     return(contacts)
 
+def groupInfect(infCadet, corps):
+    team = infCadet.team
+    infCadetArr = cadetArray(infCadet)
+    if(team != "none"):
+      for cdt in corps:
+        cdtArr = cadetArray(cdt)
+        teamRoster = np.where(cdtArr[3] == infCadetArr[3],cdt,)
+
+
+def closeContacts2(infCadet, corps):
+#need cadet to be array and corps to be array
+    for cadet in corps:
+      if(cadet == infCadet):
+          pass
+      cadetArr = cadetArray(cadet)
+      infCadetArr = cadetArray(infCadet)
+      for i in range(5):
+        np.where(cadetArr[i] == infCadetArr[i],cadet)
+#need something to return list of close contacts
 
 def infect(contacts):
     for cadet in contacts:
@@ -163,3 +179,7 @@ quarantineCt = 0
 #need how to select a cadet to be tested
 #need random assignment of test result
 #need count for while in quarantine
+
+
+
+

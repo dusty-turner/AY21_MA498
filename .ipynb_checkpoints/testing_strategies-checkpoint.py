@@ -1,0 +1,123 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import random\n",
+    "\n",
+    "##maybe use object oriented programing?\n",
+    "\n",
+    "class company:\n",
+    "    def __init__(self, co, room)\n",
+    "        self.co = co\n",
+    "        self.room = room\n",
+    "        \n",
+    "    def companyID(self):\n",
+    "        return f\"Cadet is a member of {self.co} company.\"\n",
+    "    \n",
+    "    def roomID(self):\n",
+    "        return f\"Cadet lives in room {self.room}.\"\n",
+    "    \n",
+    "    #Working function to randomly assign # of roomates\n",
+    "    #may not be useful b/c can just assign random rooms w/ max of 4 cadets\n",
+    "### def roomates(self):\n",
+    "###     rroomate = random.randrange(1,4,1) ##not actually distributed like this\n",
+    "###     return rroomat\n",
+    "    \n",
+    "    \n",
+    "class team:\n",
+    "    def __init__(self,sport):\n",
+    "        self.sport = sport\n",
+    "        \n",
+    "    def teamID(self):\n",
+    "        return f\"Cadet is on {self.self}.\"\n",
+    "        \n",
+    "class schedule:\n",
+    "    def __init__(self, classes, section): #make classes and section a dictionary\n",
+    "        self.classes = classes\n",
+    "        self.sections = section\n",
+    "    \n",
+    "    def scheduleID(self):\n",
+    "        return f\"Cadet is taking {self.classes} classes.\"\n",
+    "\n",
+    "class cadet(company, team, schedule):\n",
+    "    \n",
+    "    def __init__(self, immune, infTime, symp, activeInf):\n",
+    "        self.immune = immune #attribute for immunity classification (0/1)\n",
+    "        self.infTime = infTime #attribute for infection time\n",
+    "        self.symp = symp #attribute for symptomatic state classification (0/1)\n",
+    "        self.activeInf = activeInf #attribute for active infection classification (0/1)\n",
+    "\n",
+    "        "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "##function to create Bernoulli random variable\n",
+    "def bern():\n",
+    "    rv = random.randrange(0,2,1)\n",
+    "    return rv\n",
+    "    \n",
+    "#function to create new infection, assigns symptomatic condition (0 or 1)\n",
+    "def newInfection(cadet):\n",
+    "    if(cadet.immune == 1 || cadet.infTime != 0):\n",
+    "        pass\n",
+    "    else:\n",
+    "        cadet.symp = bern()\n",
+    "        cadet.activeInf = 1\n",
+    "#need somethig here for positive infections/total infections/infection time\n",
+    "\n",
+    "#function to define close contacts\n",
+    "def closeContacts(infCadet, corps):\n",
+    "    contacts = []\n",
+    "    for cadet in corps:\n",
+    "        if (cadet.company == infCadet.company):\n",
+    "            if (cadet.room == infCadet.room):\n",
+    "                contacts += cadet\n",
+    "        if (cadet.team == infCadet.team):\n",
+    "            contacts += cadet\n",
+    "        for clas in infCadet.classes:\n",
+    "            if (cadet.class == clas && )##re-write for dictionary (key::value)\n",
+    "                contacts += cadet\n",
+    "                \n",
+    "    return contacts\n",
+    "        "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
