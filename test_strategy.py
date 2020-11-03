@@ -1,3 +1,7 @@
+#Author: Madison Teague
+#Last Updated: 03 NOV
+
+
 import random
 import numpy as np
 
@@ -85,29 +89,31 @@ def closeContacts(infCadet, corps):
                   contacts.add(cadet)
     return(contacts)
 
-def groupInfect(infCadet, corps):
-    team = infCadet.team
-    infCadetArr = cadetArray(infCadet)
-    if(team != "none"):
-      for cdt in corps:
-        cdtArr = cadetArray(cdt)
-        teamRoster = np.where(cdtArr[3] == infCadetArr[3],cdt,)
-
-
-def closeContacts2(infCadet, corps):
-#need cadet to be array and corps to be array
-    for cadet in corps:
-      if(cadet == infCadet):
-          pass
-      cadetArr = cadetArray(cadet)
-      infCadetArr = cadetArray(infCadet)
-      for i in range(5):
-        np.where(cadetArr[i] == infCadetArr[i],cadet,0)
-#need something to return list of close contacts
-
-def infect(contacts):
-    for cadet in contacts:
+def test(cadet):
+  results = bern()
+  if results = 1:
       newInfection(cadet)
+  return(results)    
+  
+
+
+
+#simulation
+
+#corps = [cadet1,cadet2]*1000
+#corpsArr = np.array(corps)
+#quarantine = []
+
+newInfection(cadet1)
+
+quarantine.add(cadet1)
+
+ccInf = closeContacts(cadet1, corpsArr)
+
+for cadet in ccInf:
+  test(cadet)
+  if cadet.room = cadet1.room:
+    quarantine.add(cadet)
 
 
 #testing what I got
@@ -150,14 +156,3 @@ testCorps = [cadetX,cadetY,cadetZ]
 closeTest = closeContacts(cadetY,testCorps)
 type(closeTest)
 print(closeTest)
-
-
-#simulation parameters
-
-quarantneCt = 0
-
-
-#simulation functions
-#need how to select a cadet to be tested
-#need random assignment of test result
-#need count for while in quarantine
