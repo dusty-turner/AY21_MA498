@@ -1,0 +1,52 @@
+---
+title: "JHU Exploration"
+author: "Reilly McGinnis"
+date: "10/12/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("INLA")
+library("dplyr")
+```
+
+### Import the data
+```{r}
+data = read.csv("JHU_rollup_as_of_2020-10-01.csv", header = TRUE)
+```
+
+### Create Poisson Model
+```{r}
+# assuming that y = confirmed
+formula<-confirmed~1+f(county_name,model="iid",param=c(1,0.01))
+#what should the formula be? 
+mod<-inla(formula, family="poisson", data=data)
+```
+```{r}
+#Filter for only the last date (2020-09-30)
+#fit the model
+data$date=as.factor(data$date)
+data.enddate = filter(data, date =="2020-09-30")
+
+dat.inla <- inla(confirmed~county_name, family='poisson',
+   data=data.enddate,
+   control.family=list(link='log'),
+   #control.predictor=list(link=1, compute=TRUE),
+   control.compute=list(dic=TRUE, cpo=TRUE, waic=TRUE))
+
+#examine the regular summary 
+summary(dat.inla)
+```
+
+#### Page 156 in Greenbook
+```{r}
+formula.inla<-confirmed~1+f(county_name,model="iid",hyper = list(prec=list(prior="loggamma",param=c(1,0.00001))))
+COVID.poisson<-inla(formula.inla,family = "poisson",
+                    data=data.enddate,
+                    control.predictor = list(compute=TRUE),
+                    control.fixed = list(mean.intercept=0,
+                                         prec.intercept=0.00001))
+summary(COVID.poisson)
+```
+
