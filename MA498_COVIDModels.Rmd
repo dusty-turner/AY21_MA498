@@ -1,0 +1,137 @@
+---
+title: "MA498_COVIDModels"
+output: html_document
+---
+
+```{r setup, include=FALSE,message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("INLA")
+library("dplyr")
+library("tidyverse")
+```
+
+### Import and clean the data
+```{r}
+data = read.csv("JHU_rollup_as_of_2020-10-01.csv", header = TRUE)
+county = read.csv("county_pop.csv",header = TRUE)
+data = merge(data,county, by="fips")
+
+lag.data = data %>% group_by(fips) %>%arrange(date)%>% mutate(daily = confirmed - lag(confirmed, 1))
+
+lag.data %>% mutate(daily2 = ifelse(is.na(daily),0, daily)) ->lag.noNA #daily2 NA values replaced with 0 
+
+lag.noNA %>% mutate(daily2 = ifelse(daily < 0, 0, daily)) ->lag.clean  #negative daily2 values replaced with 0
+
+#see how many lags are negative
+pos<-nrow(lag.data[lag.data$daily>=0,])
+neg<-nrow(lag.data[lag.data$daily<0,])
+percent.neg<- neg/(neg+pos) #Note: Only 2% of the daily observations are negative. We will replace these with zero
+```
+
+### Create a temporal model with no spatial term
+```{r}
+sp.observation = lag.clean %>% group_by(fips)%>% count(fips)
+sp = 2826 #this is the number of different counties
+
+lag.clean%>%filter(fips==13243)
+lag.clean%>% distinct() %>% group_by(fips, date) %>% filter(deaths==max(deaths))%>% distinct() %>% filter(daily2 ==max(daily2))-> data.maxdeath
+
+num_observation = data.maxdeath%>%group_by(fips)%>%count(fips)
+
+data.maxdeath%>%group_by(fips, date)%>%filter(confirmed==max(confirmed))->data.maxconfirmed
+data.maxconfirmed%>%group_by(fips, date)%>%filter(daily==max(daily))->data.maxdaily
+num_observation2= data.maxdaily%>%group_by(fips)%>%count(fips)
+
+#THE DATA IS ALL CLEAN! No NAs or negatives for daily2, 192 observations for each fip
+JHU.data<-data.maxdaily 
+```
+
+```{r,message=FALSE,warning=FALSE}
+# Make an ID.day variable. Goes from 1 to n and identifies the counties
+JHU.data %>% group_by(fips) %>% arrange(date)%>% 
+   mutate(id.Day = rep(1:192, times=as.factor(sp)))->ID.data
+
+ID.data %>% mutate(logPop = rep(log(population)))-> pop.data #this is base e, not 10
+
+subset.data <- pop.data%>% filter(80 < id.Day & id.Day<110)
+
+
+formula.temp <- daily2 ~ 1 + f(id.Day, model="rw1")
+model.temp<-inla(formula.temp, family="poisson",data=subset.data,offset=logPop,verbose = TRUE)
+summary(model.temp)
+```
+
+### Build a Spatial Adjacency Matrix
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+### Create Poisson Model
+```{r}
+# assuming that y = confirmed
+formula<-confirmed~1+f(county_name,model="iid",param=c(1,0.01))
+#what should the formula be? 
+mod<-inla(formula, family="poisson", data=data)
+```
+```{r}
+#Filter for only the last date (2020-09-30)
+#fit the model
+data$date=as.factor(data$date)
+data.enddate = filter(data, date =="2020-09-30")
+
+dat.inla <- inla(confirmed~county_name, family='poisson',
+   data=data.enddate,
+   control.family=list(link='log'),
+   #control.predictor=list(link=1, compute=TRUE),
+   control.compute=list(dic=TRUE, cpo=TRUE, waic=TRUE))
+
+#examine the regular summary 
+summary(dat.inla)
+```
+
+#### Page 156 in Greenbook
+```{r}
+#This does not work
+formula.inla<-confirmed~1+f(county_name,model="iid",hyper = list(prec=list(prior="loggamma",param=c(1,0.00001))))
+COVID.poisson<-inla(formula.inla,family = "poisson",
+                    data=data.enddate,
+                    control.predictor = list(compute=TRUE),
+                    control.fixed = list(mean.intercept=0,
+                                         prec.intercept=0.00001))
+summary(COVID.poisson)
+```
+
+```{r}
+#Look at this and see how it differs from what we were trying to fit
+#This is the last day of the cumulative
+#Look at the number of new cases on the last day
+dat <- read.csv("https://raw.githubusercontent.com/dusty-turner/AY21_MA498/McGinnis/JHU_rollup_as_of_2020-10-01.csv")
+
+head(dat)
+lastday <- dat %>% dplyr::filter(date==max(dat$date))
+
+pop <- read.csv("county_pop.csv",
+ col_types = cols(
+ fips = col_character(),
+ population = col_integer() ))
+
+dat_pop <- lastday %>% inner_join(pop,by = c("fips"= "fips"))
+
+ID <- seq(1,nrow(dat_pop))
+
+dat_pop<-dat_pop %>% mutate(ID = ID)
+
+formula.inla <- confirmed ~1+f(ID, model="iid", hyper = list(prec=list(prior="loggamma",param=c(1,0.00001))))
+
+covid.pois <- inla(formula.inla, family = "poisson", data=dat_pop, offset = log(population), control.fixed = list(mean.intercept = 0, prec.intercept = 0.00001))
+```
+
