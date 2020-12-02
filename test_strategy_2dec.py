@@ -6,24 +6,16 @@ import random
 import numpy as np
 import math
 
-#class CovidStatus(object):
-
-#    def __init__(self, immune, infTime, symp, activeInf):
-#        self.immune = immune #attribute for immunity classification (0/1)
-#        self.infTime = infTime #attribute for infection time
-#        self.symp = symp #attribute for symptomatic state classification (0/1)
-#        self.activeInf = activeInf #attribute for active infection classification (0/1)
-
-class Cadet(CovidStatus):
+class Cadet():
 
     def __init__(self, year, company, room, team, schedule, immune, infTime, symp, activeInf):
         self.year = year #class year 1 for cow/firstie, 0 for plebe/yuk
-        self.company = company #company = "d2" etc.
-        self.room = room #room written as string "e4023"
-        self.team = team #all team names must be in camelCase and should include mens/womens if necessary,cadet is not on sport, sport = "none"
-        self.schedule = schedule #List of courses written like "ma498_h24" (don't use day code use section code)
+        self.company = company 
+        self.room = room 
+        self.team = team
+        self.schedule = schedule 
         self.immune = immune #attribute for immunity classification (0/1)
-        self.infTime = infTime #attribute for infection time
+        self.infTime = infTime #attribute for known infection time
         self.symp = symp #attribute for symptomatic state classification (0/1)
         self.activeInf = activeInf #attribute for active infection classification (0/1)
 
@@ -31,6 +23,13 @@ class Cadet(CovidStatus):
 def bern():
     rv = random.randrange(0,2,1)
     return(rv)
+    
+def sympRate():
+  rv = random.randrange(0,100,1)
+  if rv >= 20:
+    return 0
+  else:
+    return 1
     
 def weibull(k,lam):
   x = random.range(0,1000,1)
@@ -42,7 +41,7 @@ def newInfection(cadet):
     if(cadet.immune == 1 or cadet.infTime != 0):
         pass
     else:
-        cadet.symp = bern()
+        cadet.symp = sympRate()
         cadet.activeInf = 1
         cadet.infTime = 1
 #need somethig here for positive infections/total infections/infection time
@@ -54,22 +53,19 @@ def newInfection(cadet):
 #TN rate = .99
 #FP rate = .01
 
-#need way to come up with TP/TN/FP/FN generation
-def test(cadet, TP, TN, FP, FN):
+def test(cadet):
   if cadet.activeInf == 1:
-    results = random.randrange(0,100,10)
-    if results >= .2:
-      TP += 1
+    results = random.randrange(0,100,1)
+    if results >= 20:
+      return("tP")
     else:
-      FN += 1
-    return("positive")
+      return("fN")
   else: 
     results = random.randrange(0,100,1)
-    if results >= .01:
-      TN += 1
+    if results >= 1:
+      return ("tN")
     else:
-      FP += 1
-  return("negative")   
+      return("fP")   
 
 def disinfection(cadet):
     cadet.symp = 0
@@ -90,16 +86,18 @@ def closeContacts(infCadet, corps):
             if (cadet.room == infCadet.room):
                 contacts.add(cadet)
         if (cadet.team == infCadet.team):
+          if bern() == 1:
             contacts.add(cadet)
         if (cadet.year == infCadet.year):
           for course in infCadet.schedule:
               if course in cadet.schedule:
+                if bern() == 1:
                   contacts.add(cadet)
     return(contacts)
 
 
 ################################################################################
-#simulation
+#Building Simulation Environment
 ################################################################################
 
 ##Base lists of cadet attributes
@@ -127,6 +125,7 @@ rooms = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27
 
 
 teams = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28]
+
 upperCourses = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,
                 101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,
                 201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,292,293,294,295,296,297,298,299,300,
@@ -168,14 +167,11 @@ underCourses = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,2
                 1801,1802,1803,1804,1805,1806,1807,1808,1809,1810,1811,1812,1813,1814,1815,1816,1817,1818,1819,1820,1821,1822,1823,1824,1825,1826,1827,1828,1829,1830,1831,1832,1833,1834,1835,1836,1837,1838,1839,1840,1841,1842,1843,1844,1845,1846,1847,1848,1849,1850,1851,1852,1853,1854,1855,1856,1857,1858,1859,1860,1861,1862,1863,1864,1865,1866,1867,1868,1869,1870,1871,1872,1873,1874,1875,1876,1877,1878,1879,1880,1881,1882,1883,1884,1885,1886,1887,1888,1889,1890,1891,1892,1893,1894,1895,1896,1897,1898,1899,1900,
                 1901,1902,1903,1904,1905,1906,1907,1908,1909,1910,1911,1912,1913,1914,1915,1916,1917,1918,1919,1920,1921,1922,1923,1924,1925,1926,1927,1928,1929,1930,1931,1932,1933,1934,1935,1936,1937,1938,1939,1940,1941,1942,1943,1944,1945,1946,1947,1948,1949,1950,1951,1952,1953,1954,1955,1956,1957,1958,1959,1960,1961,1962,1963,1964,1965,1966,1967,1968,1969,1970,1971,1972,1973,1974,1975,1976,1977,1978,1979,1980,1981,1982,1983,1984,1985,1986,1987,1988,1989,1990,1991,1992,1993,1994,1995,1996,1997,1998,1999,2000]
 
-covid1 = CovidStatus(0,0,0,0) #totally vulnerable
-covid2 = CovidStatus(0,1,0,1) #actively infected, asymptomatic, one day of infection
-covid3 = CovidStatus(1,0,0,0) #immune b/c already had disease
-covid4 = CovidStatus(0,1,1,1) #activley infected, symptomatic, 1 day of infection
 
-covidTypes = [covid1, covid2, covid3, covid4]
-
+################################################################################
 ##base cadets to build corps from:
+################################################################################
+
 baseUpperCadet = Cadet(1, random.choice(companies), random.choice(rooms), 
 random.choice(teams), [random.choice(upperCourses),random.choice(upperCourses),
 random.choice(upperCourses),random.choice(upperCourses),random.choice(upperCourses),
@@ -188,63 +184,103 @@ random.choice(underCourses),random.choice(underCourses),random.choice(underCours
 random.choice(underCourses)], random.choice([1,0]), 
 random.choice([1,0]), random.choice([1,0]), random.choice([1,0]))
 
+#Creates 2000 upperclass and 2000 underclass cadets
 corps = [baseUpperCadet,baseUnderCadet]*2000
 
+testPopulation = corps
+infectedPopulation = ()
+
 quarantine = []
-isolation = []
+
+#isolation = []
+
+numTested = 0
 numInf = 0
 numTP = 0
 numTN = 0
 numFP = 0
 numFN = 0
 
-covid1 = covidStatus(0,0,0,0) #totally vulnerable
-covid2 = covidStatus(0,1,0,1) #actively infected, asymptomatic, one day of infection
-covid3 = covidStatus(1,0,0,0) #immune b/c already had disease
-covid4 = covidStatus(0,1,1,1) #activley infected, symptomatic, 1 day of infection
-
-
-#inital 100% test of corps?
-#some kind of while loop for whole simulation?
-
+#week and day counters
 w = 0
-
 d = 0
+################################################################################
+#Simulation
+################################################################################
+
+for cdt in corps:
+  testResults = test(cdt)
+  if testResults == "positive" :
+      quarantine.append([cdt,0])
+      
 while w <=16:
-#function that randomly gives people coVID? 
 
-#how many people infected per week?
-  sentinel_cadets = [random.choice(corps)]*108
-
-  for cadet in sentinel_cadets:
-    testResults = test(cadet, numTP, numTN, numFP, numFN)
-    if testResults == "positive" :
-      numInf +=1
-      quarantine.append(cadet)
-      ccInf = closeContacts(cadet, corps)
-#'randomly' infect cadts within close contacts (mainly roomates and DPE related people)
-    for cdt in ccInf:
-      if bern() == 1:
-        newInfection(cdt)
-      results = test(cdt, numTP, numTN, numFP, numFN)
-      if results == 1:
-        numInf +=1
-        quarantine.add(cdt)
-      elif cdt.room == cadet.room:
-        quarantine.append(cdt)
+#weekly sentinel testing 
+  sentinelCadets = [random.choice(testPopulation)]*108
   
+  for cadet in sentinelCadets:
+    testPopulation.remove(cadet)
+    numTested += 1
+    
+  testResults = test(cadet)
+  if testResults == "tP":
+    numTP += 1
+    numInf +=1
+    quarantine.append([cadet,0])
+    ccInf = closeContacts(cadet, corps)
+  elif testResults == "fP":
+    numFP += 1
+#    numInf += 1
+    quarantine.append([cadet,0])
+    ccInf = closeContacts(cadet, corps)
+  elif testResults == "fN":
+    numFN += 1
+    numInf += 1
+  elif testResults == "tN":
+    numFP += 1    
+  
+  
+  while len(ccInf) > 0:
+    cdt = ccInf.pop()
+    if bern() == 1:
+      newInfection(cdt)
+    results = test(cdt)
+    if results == "true positive":
+      numTP += 1
+      numInf +=1
+      quarantine.append([cadet,0])
+      ccInf.add(closeContacts(cadet, corps))
+    elif results == "false positive":
+      numFP += 1
+      numInf +=1
+      quarantine.append([cadet,0])
+      ccInf.add(closeContacts(cadet, corps))
+    elif results == "false negative":
+      numFN += 1
+    elif results == "false positive":
+      numFP += 1
+    elif cdt.room == cadet.room:
+      quarantine.append([cdt,0])
+  
+#Daily update of infection time/ quarantine population/ interaction infections  
   while d <= 7:
-    for cadet in quarantine:
-      cadet.infTime += 1
+    for cadet in corps:
+      if cadet.activeInf == 1:
+        cadet.infTime += 1
+      if cadet.infTime >= 14:
+        disinfection(cadet)
+    for i in range(0,len(quarantine)):
+      quarantine[i][1] += 1
+      if quarantine[i][1] >= 14:
+        quarantine.pop(i)
     d += 1
     
-  if cadet.infTime == 14:
-    disinfection(cadet)
-
   w +=1
   
   
   
 print("Total number infected = {}".format(numInf))
+print("Total number tested = {}.".format(numTested))
 print("TP: {} TN: {} FP: {}, FN: {}".format(numTN, numTP, numFP, numFN))
+print("Total number in quarantine = {}".format(len(quarantine)-1))
 
