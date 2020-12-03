@@ -661,6 +661,7 @@ while w <=16:
       newInfection(cdt)
       numInf += 1
     results = test(cdt)
+    numTested +=1
     if results == "tP":
       numTP += 1
       quarantine.append([cadet,0])
@@ -696,7 +697,7 @@ while w <=16:
   
   
 print("Total number infected = {}".format(numInf))
-print("Total number tested = {}.".format(numTested))
+print("Total number tested = {}".format(numTested))
 print("TP: {} TN: {} FP: {}, FN: {}".format(numTN, numTP, numFP, numFN))
 print("Total number in quarantine = {}".format(len(quarantine)))
 
