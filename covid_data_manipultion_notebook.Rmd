@@ -1,0 +1,429 @@
+---
+title: "COVID Data Manipulation"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+Loading the data: 
+
+```{r}
+library(tidyverse)
+
+library(tidyverse)
+library(readxl)
+
+week1 <- read_excel("testing_out_with_company_clean.xlsx", sheet = 1)%>% 
+  janitor::clean_names()%>% filter(company != "NA")
+week2 <- read_excel("testing_out_with_company_clean.xlsx", sheet = 2) %>% 
+  janitor::clean_names() 
+week3 <- read_excel("testing_out_with_company_clean.xlsx", sheet = 3) %>% 
+  janitor::clean_names() 
+week4 <- read_excel("testing_out_with_company_clean.xlsx", sheet = 4) %>% 
+  janitor::clean_names() 
+week5 <- read_excel("testing_out_with_company_clean.xlsx", sheet = 5) %>% 
+  janitor::clean_names() 
+week6 <- read_excel("testing_out_with_company_clean.xlsx", sheet = 6) %>% 
+  janitor::clean_names() 
+week7 <- read_excel("testing_out_with_company_clean.xlsx", sheet = 7) %>% 
+  janitor::clean_names() 
+week8 <- read_excel("testing_out_with_company_clean.xlsx", sheet = 8) %>% 
+  janitor::clean_names() 
+week9 <- read_excel("testing_out_with_company_clean.xlsx", sheet = 9) %>% 
+  janitor::clean_names() 
+week10 <- read_excel("testing_out_with_company_clean.xlsx", sheet = 10) %>% 
+  janitor::clean_names() 
+week11 <- read_excel("testing_out_with_company_clean.xlsx", sheet = 11) %>% 
+  janitor::clean_names() 
+week12 <- read_excel("testing_out_with_company_clean.xlsx", sheet = 12) %>% 
+  janitor::clean_names() 
+week13 <- read_excel("testing_out_with_company_clean.xlsx", sheet = 13) %>% 
+  janitor::clean_names() 
+week14 <- read_excel("testing_out_with_company_clean.xlsx", sheet = 14) %>% 
+  janitor::clean_names() 
+week15 <- read_excel("testing_out_with_company_clean.xlsx", sheet = 15) %>% 
+  janitor::clean_names() 
+week16 <- read_excel("testing_out_with_company_clean.xlsx", sheet = 16) %>% 
+  janitor::clean_names()
+```
+
+Putting in correct inclusion probabilities:
+```{r}
+week1 <- week1 %>%
+  mutate(ht_estimator = result*(1/inc_prob), 
+         ht_var = result *((1-inc_prob)/inc_prob))
+
+week2 <- week2 %>% 
+  group_by(test_date, company) %>% 
+  mutate(post_today_comp = max(result)) %>% 
+  ungroup() %>%
+  group_by(company) %>% 
+  mutate(id_these_people_comp = cummax(post_today_comp)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_comp, company) %>% 
+  mutate(new_prob_comp = ifelse(post_today_comp == 0 & id_these_people_comp == 1, 
+                                n()/122, inc_prob)) %>% 
+  ungroup()%>%
+  group_by(test_date, corps_squad) %>% 
+  mutate(post_today_corps = max(result)) %>%
+  ungroup()%>%
+  group_by(corps_squad) %>% 
+  mutate(id_these_people_corps = cummax(post_today_corps)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_corps, corps_squad) %>% 
+  mutate(new_prob_corps = ifelse(post_today_corps == 0 & id_these_people_corps == 1,
+                                 n()/37, inc_prob)) %>%
+  mutate(new_prob_corps = ifelse(corps_squad=="NA", new_prob_comp, new_prob_corps)) %>% 
+  ungroup () %>%
+  mutate(inc_prob = max(inc_prob, new_prob_comp, new_prob_corps) ) %>%
+  select(result,inc_prob) %>% 
+  rowwise() %>% 
+  mutate(ht_estimator = result*(1/inc_prob), ht_var = result *((1-inc_prob)/inc_prob))
+  
+week3 <- week3 %>%
+  mutate(ht_estimator = result*(1/inc_prob), 
+         ht_var = result *((1-inc_prob)/inc_prob))
+  
+week4 <- week4 %>% 
+  group_by(test_date, company) %>% 
+  mutate(post_today_comp = max(result)) %>% 
+  ungroup() %>%
+  group_by(company) %>% 
+  mutate(id_these_people_comp = cummax(post_today_comp)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_comp, company) %>% 
+  mutate(new_prob_comp = ifelse(post_today_comp == 0 & id_these_people_comp == 1, 
+                                n()/122, inc_prob)) %>% 
+  ungroup()%>%
+  group_by(test_date, corps_squad) %>% 
+  mutate(post_today_corps = max(result)) %>%
+  ungroup()%>%
+  group_by(corps_squad) %>% 
+  mutate(id_these_people_corps = cummax(post_today_corps)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_corps, corps_squad) %>% 
+  mutate(new_prob_corps = ifelse(post_today_corps == 0 & id_these_people_corps == 1,
+                                 n()/37, inc_prob)) %>%
+  mutate(new_prob_corps = ifelse(corps_squad=="NA", new_prob_comp, new_prob_corps)) %>% 
+  ungroup () %>%
+  mutate(inc_prob = max(inc_prob, new_prob_comp, new_prob_corps)) %>%
+  select(result, inc_prob) %>% 
+  rowwise() %>% 
+  mutate(ht_estimator = result*(1/inc_prob), 
+         ht_var = result *((1-inc_prob)/inc_prob))
+
+week5 <- week5 %>% mutate(ht_estimator = result*(1/inc_prob), 
+         ht_var = result *((1-inc_prob)/inc_prob))
+
+week6 <- week6 %>% mutate(ht_estimator = result*(1/inc_prob), 
+         ht_var = result *((1-inc_prob)/inc_prob))
+
+week7 <- week7 %>% 
+  group_by(test_date, company) %>% 
+  mutate(post_today_comp = max(result)) %>% 
+  ungroup() %>%
+  group_by(company) %>% 
+  mutate(id_these_people_comp = cummax(post_today_comp)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_comp, company) %>% 
+  mutate(new_prob_comp = ifelse(post_today_comp == 0 & id_these_people_comp == 1, 
+                                n()/122, inc_prob)) %>% 
+  ungroup()%>%
+  group_by(test_date, corps_squad) %>% 
+  mutate(post_today_corps = max(result)) %>%
+  ungroup()%>%
+  group_by(corps_squad) %>% 
+  mutate(id_these_people_corps = cummax(post_today_corps)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_corps, corps_squad) %>% 
+  mutate(new_prob_corps = ifelse(post_today_corps == 0 & id_these_people_corps == 1,
+                                 n()/37, inc_prob)) %>%
+  mutate(new_prob_corps = ifelse(corps_squad=="NA", new_prob_comp, new_prob_corps)) %>% 
+  ungroup () %>%
+  mutate(inc_prob = max(inc_prob, new_prob_comp, new_prob_corps)) %>%
+  select(result, inc_prob) %>% 
+  rowwise() %>%
+  mutate(ht_estimator = result*(1/inc_prob), 
+         ht_var = result *((1-inc_prob)/inc_prob))
+
+week8 <- week8 %>% mutate(ht_estimator = result*(1/inc_prob), 
+         ht_var = result *((1-inc_prob)/inc_prob))
+
+week9 <- week9 %>% 
+  group_by(test_date, company) %>% 
+  mutate(post_today_comp = max(result)) %>% 
+  ungroup() %>%
+  group_by(company) %>% 
+  mutate(id_these_people_comp = cummax(post_today_comp)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_comp, company) %>% 
+  mutate(new_prob_comp = ifelse(post_today_comp == 0 & id_these_people_comp == 1, 
+                                n()/122, inc_prob)) %>% 
+  ungroup()%>%
+  group_by(test_date, corps_squad) %>% 
+  mutate(post_today_corps = max(result)) %>%
+  ungroup()%>%
+  group_by(corps_squad) %>% 
+  mutate(id_these_people_corps = cummax(post_today_corps)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_corps, corps_squad) %>% 
+  mutate(new_prob_corps = ifelse(post_today_corps == 0 & id_these_people_corps == 1,
+                                 n()/37, inc_prob)) %>%
+  mutate(new_prob_corps = ifelse(corps_squad=="NA", new_prob_comp, new_prob_corps)) %>% 
+  ungroup () %>%
+  mutate(inc_prob = max(inc_prob, new_prob_comp, new_prob_corps)) %>%
+  select(result, inc_prob) %>% 
+  rowwise() %>% 
+  mutate(ht_estimator = result*(1/inc_prob), 
+         ht_var = result *((1-inc_prob)/inc_prob))
+  
+
+week10 <- week10 %>% 
+  group_by(test_date, company) %>% 
+  mutate(post_today_comp = max(result)) %>% 
+  ungroup() %>%
+  group_by(company) %>% 
+  mutate(id_these_people_comp = cummax(post_today_comp)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_comp, company) %>% 
+  mutate(new_prob_comp = ifelse(post_today_comp == 0 & id_these_people_comp == 1, 
+                                n()/122, inc_prob)) %>% 
+  ungroup()%>%
+  group_by(test_date, corps_squad) %>% 
+  mutate(post_today_corps = max(result)) %>%
+  ungroup()%>%
+  group_by(corps_squad) %>% 
+  mutate(id_these_people_corps = cummax(post_today_corps)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_corps, corps_squad) %>% 
+  mutate(new_prob_corps = ifelse(post_today_corps == 0 & id_these_people_corps == 1,
+                                 n()/37, inc_prob)) %>%
+  mutate(new_prob_corps = ifelse(corps_squad=="NA", new_prob_comp, new_prob_corps)) %>% 
+  ungroup () %>%
+  mutate(inc_prob = max(inc_prob, new_prob_comp, new_prob_corps)) %>%
+  select(result, inc_prob) %>% 
+  rowwise() %>% 
+  mutate(ht_estimator = result*(1/inc_prob), 
+         ht_var = result *((1-inc_prob)/inc_prob))
+
+week11 <- week11 %>% 
+  group_by(test_date, company) %>% 
+  mutate(post_today_comp = max(result)) %>% 
+  ungroup() %>%
+  group_by(company) %>% 
+  mutate(id_these_people_comp = cummax(post_today_comp)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_comp, company) %>% 
+  mutate(new_prob_comp = ifelse(post_today_comp == 0 & id_these_people_comp == 1, 
+                                n()/122, inc_prob)) %>% 
+  ungroup()%>%
+  group_by(test_date, corps_squad) %>% 
+  mutate(post_today_corps = max(result)) %>%
+  ungroup()%>%
+  group_by(corps_squad) %>% 
+  mutate(id_these_people_corps = cummax(post_today_corps)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_corps, corps_squad) %>% 
+  mutate(new_prob_corps = ifelse(post_today_corps == 0 & id_these_people_corps == 1,
+                                 n()/37, inc_prob)) %>%
+  mutate(new_prob_corps = ifelse(corps_squad=="NA", new_prob_comp, new_prob_corps)) %>% 
+  ungroup () %>%
+  mutate(inc_prob = max(inc_prob, new_prob_comp, new_prob_corps)) %>%
+  select(result, inc_prob) %>% 
+  rowwise() %>% 
+  mutate(ht_estimator = result*(1/inc_prob), 
+         ht_var = result *((1-inc_prob)/inc_prob))
+
+week12 <- week12 %>% 
+  group_by(test_date, company) %>% 
+  mutate(post_today_comp = max(result)) %>% 
+  ungroup() %>%
+  group_by(company) %>% 
+  mutate(id_these_people_comp = cummax(post_today_comp)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_comp, company) %>% 
+  mutate(new_prob_comp = ifelse(post_today_comp == 0 & id_these_people_comp == 1, 
+                                n()/122, inc_prob)) %>% 
+  ungroup()%>%
+  group_by(test_date, corps_squad) %>% 
+  mutate(post_today_corps = max(result)) %>%
+  ungroup()%>%
+  group_by(corps_squad) %>% 
+  mutate(id_these_people_corps = cummax(post_today_corps)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_corps, corps_squad) %>% 
+  mutate(new_prob_corps = ifelse(post_today_corps == 0 & id_these_people_corps == 1,
+                                 n()/37, inc_prob)) %>%
+  mutate(new_prob_corps = ifelse(corps_squad=="NA", new_prob_comp, new_prob_corps)) %>% 
+  ungroup () %>%
+  mutate(inc_prob = max(inc_prob, new_prob_comp, new_prob_corps)) %>%
+  select(result, inc_prob) %>% 
+  rowwise() %>% 
+  mutate(ht_estimator = result*(1/inc_prob), 
+         ht_var = result *((1-inc_prob)/inc_prob))
+
+week13 <- week13 %>% 
+  group_by(test_date, company) %>% 
+  mutate(post_today_comp = max(result)) %>% 
+  ungroup() %>%
+  group_by(company) %>% 
+  mutate(id_these_people_comp = cummax(post_today_comp)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_comp, company) %>% 
+  mutate(new_prob_comp = ifelse(post_today_comp == 0 & id_these_people_comp == 1, 
+                                n()/122, inc_prob)) %>% 
+  ungroup()%>%
+  group_by(test_date, corps_squad) %>% 
+  mutate(post_today_corps = max(result)) %>%
+  ungroup()%>%
+  group_by(corps_squad) %>% 
+  mutate(id_these_people_corps = cummax(post_today_corps)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_corps, corps_squad) %>% 
+  mutate(new_prob_corps = ifelse(post_today_corps == 0 & id_these_people_corps == 1,
+                                 n()/37, inc_prob)) %>%
+  mutate(new_prob_corps = ifelse(corps_squad=="NA", new_prob_comp, new_prob_corps)) %>% 
+  ungroup () %>%
+  mutate(inc_prob = max(inc_prob, new_prob_comp, new_prob_corps)) %>%
+  select(result, inc_prob) %>% 
+  rowwise() %>% 
+  mutate(ht_estimator = result*(1/inc_prob), 
+         ht_var = result *((1-inc_prob)/inc_prob))
+
+week14 <- week14 %>% 
+ group_by(test_date, company) %>% 
+  mutate(post_today_comp = max(result)) %>% 
+  ungroup() %>%
+  group_by(company) %>% 
+  mutate(id_these_people_comp = cummax(post_today_comp)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_comp, company) %>% 
+  mutate(new_prob_comp = ifelse(post_today_comp == 0 & id_these_people_comp == 1, 
+                                n()/122, inc_prob)) %>% 
+  ungroup()%>%
+  group_by(test_date, corps_squad) %>% 
+  mutate(post_today_corps = max(result)) %>%
+  ungroup()%>%
+  group_by(corps_squad) %>% 
+  mutate(id_these_people_corps = cummax(post_today_corps)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_corps, corps_squad) %>% 
+  mutate(new_prob_corps = ifelse(post_today_corps == 0 & id_these_people_corps == 1,
+                                 n()/37, inc_prob)) %>%
+  mutate(new_prob_corps = ifelse(corps_squad=="NA", new_prob_comp, new_prob_corps)) %>% 
+  ungroup () %>%
+  mutate(inc_prob = max(inc_prob, new_prob_comp, new_prob_corps)) %>%
+  select(result, inc_prob) %>% 
+  rowwise() %>% 
+  mutate(ht_estimator = result*(1/inc_prob), 
+         ht_var = result *((1-inc_prob)/inc_prob))
+
+week15 <- week15 %>% 
+  group_by(test_date, company) %>% 
+  mutate(post_today_comp = max(result)) %>% 
+  ungroup() %>%
+  group_by(company) %>% 
+  mutate(id_these_people_comp = cummax(post_today_comp)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_comp, company) %>% 
+  mutate(new_prob_comp = ifelse(post_today_comp == 0 & id_these_people_comp == 1, 
+                                n()/122, inc_prob)) %>% 
+  ungroup()%>%
+  group_by(test_date, corps_squad) %>% 
+  mutate(post_today_corps = max(result)) %>%
+  ungroup()%>%
+  group_by(corps_squad) %>% 
+  mutate(id_these_people_corps = cummax(post_today_corps)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_corps, corps_squad) %>% 
+  mutate(new_prob_corps = ifelse(post_today_corps == 0 & id_these_people_corps == 1,
+                                 n()/37, inc_prob)) %>%
+  mutate(new_prob_corps = ifelse(corps_squad=="NA", new_prob_comp, new_prob_corps)) %>% 
+  ungroup () %>%
+  mutate(inc_prob = max(inc_prob, new_prob_comp, new_prob_corps)) %>%
+  select(result, inc_prob) %>% 
+  rowwise() %>% 
+  mutate(ht_estimator = result*(1/inc_prob), 
+         ht_var = result *((1-inc_prob)/inc_prob))
+
+week16 <- week16 %>% 
+  group_by(test_date, company) %>% 
+  mutate(post_today_comp = max(result)) %>% 
+  ungroup() %>%
+  group_by(company) %>% 
+  mutate(id_these_people_comp = cummax(post_today_comp)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_comp, company) %>% 
+  mutate(new_prob_comp = ifelse(post_today_comp == 0 & id_these_people_comp == 1, 
+                                n()/122, inc_prob)) %>% 
+  ungroup()%>%
+  group_by(test_date, corps_squad) %>% 
+  mutate(post_today_corps = max(result)) %>%
+  ungroup()%>%
+  group_by(corps_squad) %>% 
+  mutate(id_these_people_corps = cummax(post_today_corps)) %>% 
+  ungroup() %>%
+  group_by(test_date, result, post_today_corps, corps_squad) %>% 
+  mutate(new_prob_corps = ifelse(post_today_corps == 0 & id_these_people_corps == 1,
+                                 n()/37, inc_prob)) %>%
+  mutate(new_prob_corps = ifelse(corps_squad=="NA", new_prob_comp, new_prob_corps)) %>% 
+  ungroup () %>%
+  mutate(inc_prob = max(inc_prob, new_prob_comp, new_prob_corps)) %>%
+  select(result, inc_prob) %>% 
+  rowwise() %>% 
+  mutate(ht_estimator = result*(1/inc_prob), 
+         ht_var = result *((1-inc_prob)/inc_prob))
+
+```
+
+```{r}
+week1sum <- week1 %>% summarise(ht_estimator = (1/4392)*sum(ht_estimator),
+                    ht_variance = ((1/4392)^2)*sum(ht_var))
+
+week2sum <- week2 %>% summarise(ht_estimator = (1/4392)*sum(ht_estimator),
+                    ht_variance = ((1/4392)^2)*sum(ht_var))
+
+week3sum <- week3 %>% summarise(ht_estimator = (1/4392)*sum(ht_estimator),
+                    ht_variance = ((1/4392)^2)*sum(ht_var))
+
+week4sum <- week4 %>% summarise(ht_estimator = (1/4392)*sum(ht_estimator),
+                    ht_variance = ((1/4392)^2)*sum(ht_var))
+
+week5sum <- week5 %>% summarise(ht_estimator = (1/4392)*sum(ht_estimator),
+                    ht_variance = ((1/4392)^2)*sum(ht_var))
+
+week6sum <- week6 %>% summarise(ht_estimator = (1/4392)*sum(ht_estimator),
+                    ht_variance = ((1/4392)^2)*sum(ht_var))
+
+week7sum <- week7 %>% summarise(ht_estimator = (1/4392)*sum(ht_estimator),
+                    ht_variance = ((1/4392)^2)*sum(ht_var))
+
+week8sum <- week8 %>% summarise(ht_estimator = (1/4392)*sum(ht_estimator),
+                    ht_variance = ((1/4392)^2)*sum(ht_var))
+
+week9sum <- week9 %>% summarise(ht_estimator = (1/4392)*sum(ht_estimator),
+                    ht_variance = ((1/4392)^2)*sum(ht_var))
+
+week10sum <- week10 %>% summarise(ht_estimator = (1/4392)*sum(ht_estimator),
+                    ht_variance = ((1/4392)^2)*sum(ht_var))
+
+week11sum <- week11 %>% summarise(ht_estimator = (1/4392)*sum(ht_estimator),
+                    ht_variance = ((1/4392)^2)*sum(ht_var))
+
+week12sum <- week12 %>% summarise(ht_estimator = (1/4392)*sum(ht_estimator),
+                    ht_variance = ((1/4392)^2)*sum(ht_var))
+
+week13sum <- week13 %>% summarise(ht_estimator = (1/4392)*sum(ht_estimator),
+                    ht_variance = ((1/4392)^2)*sum(ht_var))
+
+week14sum <- week14 %>% summarise(ht_estimator = (1/4392)*sum(ht_estimator),
+                    ht_variance = ((1/4392)^2)*sum(ht_var))
+
+week15sum <- week15 %>% summarise(ht_estimator = (1/4392)*sum(ht_estimator),
+                    ht_variance = ((1/4392)^2)*sum(ht_var))
+
+week16sum <- week16 %>% summarise(ht_estimator = (1/4392)*sum(ht_estimator),
+                    ht_variance = ((1/4392)^2)*sum(ht_var))
+
+```
+
